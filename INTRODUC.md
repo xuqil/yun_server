@@ -6,7 +6,7 @@
 
 - ####  方式一：使用pycharm进行创建，如下图
 
-![](screenshot\django_start.png)
+![](/screenshot/django_start.png)
 
 - ##### 方式二：使用`django-admin startproject projectname`创建项目，`python manage.py startapp appname`创建app
 
