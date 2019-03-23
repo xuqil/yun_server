@@ -4,9 +4,9 @@ from django.db import models
 class AuthCar(models.Model):
     uid = models.IntegerField(primary_key=True)
     # 保存用户uid
-    carid = models.CharField(max_length=10, db_index=True)
+    car_id = models.CharField(max_length=10, db_index=True)
     # 索引，车牌号
-    appid = models.CharField(max_length=20)
+    app_id = models.CharField(max_length=20)
     # 外键连接auth_token,应用id
 
     class Meta:
@@ -14,9 +14,9 @@ class AuthCar(models.Model):
 
 
 class AuthApp(models.Model):
-    appid = models.CharField(primary_key=True, max_length=20)
+    app_id = models.CharField(primary_key=True, max_length=20)
     # 应用id
-    appsecret = models.CharField(max_length=32)
+    app_secret = models.CharField(max_length=32)
     # 应用密码(本处出于简单处理，直接明文保存)
 
     class Meta:
