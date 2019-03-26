@@ -2,7 +2,7 @@ from django.db import models
 
 
 class AuthCar(models.Model):
-    uid = models.IntegerField(primary_key=True)
+    uid = models.AutoField(primary_key=True)
     # 保存用户uid
     car_id = models.CharField(max_length=10, db_index=True)
     # 索引，车牌号
