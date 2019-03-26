@@ -72,3 +72,15 @@ class CarImage(models.Model):
     # 主键，图片的url路径，命名方式为/images_upload/{uid}_{gid}_{g_sid}_{created}
     created = models.DateTimeField(auto_now_add=True)
     # 图片上传保存时间
+
+
+class AuthToken(models.Model):
+    key = models.CharField(max_length=200, primary_key=True)
+    uid = models.OneToOneField(AuthCar, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'auth_token'
+
+    def __str__(self):
+        return self.key
