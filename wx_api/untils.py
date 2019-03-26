@@ -1,6 +1,7 @@
 import base64
 import hmac
 import hashlib
+import base64
 
 
 class Token:
@@ -70,3 +71,21 @@ def md5(arg):
     m = hashlib.md5()
     m.update(arg.encode("utf8"))
     return m.hexdigest()
+
+
+def base64_encryption(str_encrypt):
+    """
+    base64加密
+    :param str_encrypt: 被加密的字符串
+    :return:
+    """
+    return base64.b64encode(str_encrypt.encode('utf-8')).decode("ascii")
+
+
+def base64_decode(str_encrypt):
+    """
+    base64解密
+    :param str_encrypt: base64加密后的字符串
+    :return:
+    """
+    return base64.b64decode(str_encrypt).decode()

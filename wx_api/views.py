@@ -5,7 +5,7 @@ from .models import AuthCar, AuthApp, CarComputedDate, CarData, CarImage, AuthTo
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 import json
-from .untils import Token, md5
+from .untils import Token, md5, base64_decode, base64_encryption
 
 
 @csrf_exempt
@@ -76,7 +76,11 @@ def acquire_token(request):
         return HttpResponse("error")
 
 
-
-
+@csrf_exempt
+def get_base64_token(request):
+    if request.method == 'GET':
+        token = request.META.get('HTTP_AUTHENTICATION')
+        print('token', token)
+        return HttpResponse('address-2')
 
 

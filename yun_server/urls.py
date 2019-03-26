@@ -19,5 +19,6 @@ from wx_api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('v1/token/', views.acquire_token),
+    path('v1/token/', views.acquire_token, name='token'),
+    path('v1/address/2/', views.get_base64_token, name='get_base64_token'),
 ]
