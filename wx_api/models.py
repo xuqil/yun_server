@@ -78,6 +78,7 @@ class AuthToken(models.Model):
     key = models.CharField(max_length=200, primary_key=True)
     uid = models.OneToOneField(AuthCar, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
+    update_time = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = 'auth_token'
