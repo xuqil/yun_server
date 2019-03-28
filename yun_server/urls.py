@@ -13,12 +13,9 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path
-from wx_api import views
+from django.urls import path, include
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('v1/token/', views.acquire_token, name='token'),
-    path('v1/address/2/', views.CheckToken.as_view(), name='get_base64_token'),
+    path('v1/', include('wx_api.urls', namespace='wx_api')),
 ]
