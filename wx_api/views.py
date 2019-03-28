@@ -11,6 +11,9 @@ from .authentication import MyAuthentication
 
 
 def acquire_token(request):
+    """
+    获取认证token
+    """
     if request.method == 'POST':
         car_id = request.POST.get('carid')
         app_id = request.POST.get('appid')
@@ -58,17 +61,19 @@ def acquire_token(request):
                         "timestamp": timestamp,
                         "sign": sign,
                         "sdasd": sdasd,
-                        "version": "v1",
+                        "version": "v1"
                     }
                 }
             }
-        return HttpResponse(json.dumps(context))
+        return HttpResponse(json.dumps(context, indent=4))
     else:
         return HttpResponse("error")
 
 
 class CheckToken(MyAuthentication):
-
+    """
+    使用获取的token进行请求(任意请求都需携带)
+    """
     def get(self, request, *args, **kwargs):
         return HttpResponse("address-2")
 
@@ -94,3 +99,7 @@ class CheckToken(MyAuthentication):
         return HttpResponse('address-2')
 
 
+class ReceiveData(MyAuthentication):
+    def post(self, request, *args, **kwargs):
+        print(request.body)
+        return HttpResponse('address-2')
