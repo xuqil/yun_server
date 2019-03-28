@@ -1,17 +1,16 @@
 """"
 备注：代码后面需要重构
 """
-from .models import AuthCar, AuthApp, CarComputedDate, CarData, CarImage, AuthToken
-from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 import json
-from .untils import Token, md5, base64_decode, base64_encryption
+from .untils import Token, md5
 import datetime
 
+from .models import AuthCar, AuthToken
+from .authentication import MyAuthentication
 
-@csrf_exempt
+
 def acquire_token(request):
-    context = {}
     if request.method == 'POST':
         car_id = request.POST.get('carid')
         app_id = request.POST.get('appid')
@@ -68,11 +67,18 @@ def acquire_token(request):
         return HttpResponse("error")
 
 
-@csrf_exempt
-def get_base64_token(request):
-    if request.method == 'GET':
-        token = request.META.get('HTTP_AUTHENTICATION')
-        print('token', token)
-        return HttpResponse('address-2')
+class CheckToken(MyAuthentication):
+
+    def get(self, request, *args, **kwargs):
+        return HttpResponse("GET")
+
+    def post(self, request, *args, **kwargs):
+        return HttpResponse('POST')
+
+    def put(self, request, *args, **kwargs):
+        return HttpResponse('PUT')
+
+    def delete(self, request, *args, **kwargs):
+        return HttpResponse('DELETE')
 
 
