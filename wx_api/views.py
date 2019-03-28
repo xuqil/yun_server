@@ -70,15 +70,27 @@ def acquire_token(request):
 class CheckToken(MyAuthentication):
 
     def get(self, request, *args, **kwargs):
-        return HttpResponse("GET")
+        return HttpResponse("address-2")
 
     def post(self, request, *args, **kwargs):
-        return HttpResponse('POST')
+        return HttpResponse('address-2')
 
     def put(self, request, *args, **kwargs):
-        return HttpResponse('PUT')
+        return HttpResponse('address-2')
 
     def delete(self, request, *args, **kwargs):
-        return HttpResponse('DELETE')
+        return HttpResponse('address-2')
+
+    def patch(self, request, *args, **kwargs):
+        return HttpResponse('address-2')
+
+    def head(self, request, *args, **kwargs):
+        return HttpResponse('address-2')
+
+    def options(self, request, *args, **kwargs):
+        return HttpResponse('address-2')
+
+    def trace(self, request, *args, **kwargs):
+        return HttpResponse('address-2')
 
 
