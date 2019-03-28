@@ -8,6 +8,11 @@ class MyAuthentication(View):
     """
     token认证
     """
+
+    def __init__(self):
+        super(MyAuthentication, self).__init__()
+        self.uid = None
+
     def dispatch(self, request, *args, **kwargs):
         authentication = request.META.get('HTTP_AUTHENTICATION')  # 获取头部信息
         if authentication is None or authentication == '':
@@ -53,8 +58,8 @@ class MyAuthentication(View):
                 'code': 403,
                 'msg': 'Forbidden!'
             })
-        token = user.key
-        if token != request_token:
+        self.uid = user.uid_id
+        if user.key != request_token:
             # token不正确或者已经过期
             print("token过期")
             return JsonResponse({

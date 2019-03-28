@@ -1,12 +1,13 @@
 """"
 备注：代码后面需要重构
 """
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 import json
 from .untils import Token, md5
 import datetime
+from django.db import transaction
 
-from .models import AuthCar, AuthToken
+from .models import AuthCar, AuthToken, CarComputedDate, CarData
 from .authentication import MyAuthentication
 
 
@@ -100,6 +101,39 @@ class CheckToken(MyAuthentication):
 
 
 class ReceiveData(MyAuthentication):
+    """
+    接收传感器数据
+    """
     def post(self, request, *args, **kwargs):
-        print(request.body)
-        return HttpResponse('address-2')
+        data = json.loads(request.body.decode())
+        gid = data['gid']
+        data_record = data['computed']
+        print("uid:", self.uid)
+        print("gid:", gid, " ", "computed:", data_record)
+        list_data = data['list']
+        try:
+            for g_sid, value in list_data.items():
+                print("key:", g_sid)
+                car_data_instant = CarData()
+                car_data_instant.uid_id = self.uid
+                car_data_instant.gid = gid
+                car_data_instant.g_sid = g_sid
+                car_data_instant.ccd = int(value["ccd"])
+                car_data_instant.electric = int(value["electric"])
+                car_data_instant.acceleration = int(value["acceleration"])
+                car_data_instant.speed = int(value["speed"])
+                car_computed_instant = CarComputedDate()
+                car_computed_instant.uid_id = self.uid
+                car_computed_instant.gid = gid
+                car_computed_instant.data_record = data_record
+                with transaction.atomic():
+                    car_data_instant.save()
+                    car_computed_instant.save()
+        except Exception as e:
+            print("出现错误", e)
+            return HttpResponse("error")
+        return JsonResponse({
+            "code": 201,
+            "message": "Successfully Saved.",
+            "data": []
+        })

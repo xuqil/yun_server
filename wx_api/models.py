@@ -28,11 +28,11 @@ class CarComputedDate(models.Model):
     # 外键连接auth_car，上传用户uid
     gid = models.IntegerField(db_index=True)
     # 索引，上传的分组
-    data_record = models.IntegerField()
+    data_record = models.IntegerField(null=True)
     # 用户上传的实际运动值
-    data_computed = models.IntegerField()
+    data_computed = models.IntegerField(null=True)
     # 运算的理想运动值
-    created = models.DateTimeField()
+    created = models.DateTimeField(auto_now=True)
     # 上传保存的时间
 
     class Meta:
@@ -46,15 +46,15 @@ class CarData(models.Model):
     # 索引，上传的分组
     g_sid = models.IntegerField(db_index=True)
     # 索引，在某分组下的具体序号
-    ccd = models.IntegerField()
+    ccd = models.IntegerField(null=True)
     # CCD 数组
-    electric = models.IntegerField()
+    electric = models.IntegerField(null=True)
     # 电感感应值
-    acceleration = models.IntegerField()
+    acceleration = models.IntegerField(null=True)
     # 加速度值
-    speed = models.IntegerField()
+    speed = models.IntegerField(null=True)
     # 速度编码值
-    created = models.DateTimeField()
+    created = models.DateTimeField(auto_now=True)
     # 上传保存的时间
 
     class Meta:
