@@ -5,6 +5,7 @@ from django.http import HttpResponse, JsonResponse
 import json
 from .untils import Token, md5
 from datetime import datetime
+import time
 from django.db import transaction
 from PIL import Image
 
@@ -152,14 +153,14 @@ class ReceiveImages(MyAuthentication):
         if images:
             for i in range(len(request.FILES)):
                 car_image_instant = CarImage()
-                car_image_instant.udi_id = self.uid
+                car_image_instant.uid_id = self.uid
                 car_image_instant.gid = gid
                 car_image_instant.g_sid = i + 1
                 image = images.get(str(i + 1))
                 image_format = str(image).split('.')[-1]
                 # /images_upload/{uid}_{gid}_{g_sid}_{created}
                 image_name = '%s.%s' % (str(self.uid) + "_" + str(gid) + "_" + str(i + 1) + "_" +
-                                        str(datetime.now().strftime('%Y-%m-%d-%H-%M')),
+                                        str(time.time())[:10],
                                         image_format)
                 try:
                     img = Image.open(image)
@@ -178,3 +179,27 @@ class ReceiveImages(MyAuthentication):
                 "data": []
             })
         return HttpResponse('图片为空')
+
+    def get(self, request, *args, **kwargs):
+        type_ = request.GET.get('type')
+        if type_ == 'image':
+            car_image = CarImage.objects.all()[:2]
+            total = car_image.count()
+            print("total:", total)
+            # print(car_image.first().url)
+
+
+
+
+            pass
+        elif type_ == 'data':
+            pass
+        else:
+            return HttpResponse('error')
+        uid = request.GET.get('uid')
+        gid = request.GET.get('gid')
+        g_sid = request.GET.get('g_sid')
+        page = request.GET.get('page')
+        limit = request.GET.get('limit')
+        return HttpResponse('ok')
+

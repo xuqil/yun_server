@@ -62,7 +62,7 @@ class CarData(models.Model):
 
 
 class CarImage(models.Model):
-    udi = models.ForeignKey(AuthCar, on_delete=models.CASCADE)
+    uid = models.ForeignKey(AuthCar, on_delete=models.CASCADE)
     # 外键连接auth_car，上传用户uid
     gid = models.IntegerField(db_index=True)
     # 索引，上传的分组
