@@ -7,4 +7,5 @@ urlpatterns = [
     path('token/', views.acquire_token, name='token'),
     path('address/2/', views.CheckToken.as_view(), name='check_token'),
     path('car/data/', views.ReceiveData.as_view(), name='receive_data'),
+    path('car/image/', views.ReceiveImages.as_view(), name='receive_images'),
 ]

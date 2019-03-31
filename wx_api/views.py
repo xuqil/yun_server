@@ -7,7 +7,7 @@ from .untils import Token, md5
 import datetime
 from django.db import transaction
 
-from .models import AuthCar, AuthToken, CarComputedDate, CarData
+from .models import AuthCar, AuthToken, CarComputedDate, CarData, CarImage
 from .authentication import MyAuthentication
 
 
@@ -137,3 +137,13 @@ class ReceiveData(MyAuthentication):
             "message": "Successfully Saved.",
             "data": []
         })
+
+
+class ReceiveImages(MyAuthentication):
+    def post(self, request, *args, **kwargs):
+         gid = request.POST.get('gid')
+         print(gid)
+         images = request.FILES.getlist('myfiles')
+         print(images)
+         print(request.FILES.getlist())
+         return HttpResponse('ok')
