@@ -187,15 +187,39 @@ class ReceiveImages(MyAuthentication):
         """
         type_ = request.GET.get('type')
         uid = request.GET.get('uid')
+        print(uid)
         gid = request.GET.get('gid')
         g_sid = request.GET.get('g_sid')
+        print(g_sid)
         page = request.GET.get('page')
         # 第几页
         limit = request.GET.get('limit')
         # 每页多少数据
+        car_image = None
         if type_ == 'image':
-
-            car_image = CarImage.objects.all().filter(uid_id=uid).order_by('created')
+            if uid is None:
+                # 默认查询登录用户的数据
+                if (gid is None and g_sid is not None) or (gid is None and g_sid is None):
+                    # gid is not None时该查询没有对某组下的索引进行查询，默认不分组查询
+                    car_image = CarImage.objects.all().filter(uid_id=self.uid).order_by('created')
+                elif gid is not None and g_sid is None:
+                    # 只查询组
+                    car_image = CarImage.objects.all().filter(uid_id=self.uid).filter(gid=gid).order_by('created')
+                elif gid is not None and g_sid is not None:
+                    # 具体查询
+                    car_image = CarImage.objects.all().filter(uid_id=self.uid).filter(gid=gid).\
+                        filter(g_sid=g_sid).order_by('created')
+            else:
+                if (gid is None and g_sid is not None) or (gid is None and g_sid is None):
+                    # gid is not None时该查询没有对某组下的索引进行查询，默认不分组查询
+                    car_image = CarImage.objects.all().filter(uid_id=uid).order_by('created')
+                elif gid is not None and g_sid is None:
+                    # 只查询组
+                    car_image = CarImage.objects.all().filter(uid_id=uid).filter(gid=gid).order_by('created')
+                elif gid is not None and g_sid is not None:
+                    # 具体查询
+                    car_image = CarImage.objects.all().filter(uid_id=uid).filter(gid=gid). \
+                        filter(g_sid=g_sid).order_by('created')
             paginator = Paginator(car_image, limit)
             try:
                 posts = paginator.page(int(page))
