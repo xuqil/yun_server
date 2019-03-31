@@ -184,30 +184,39 @@ class ReceiveImages(MyAuthentication):
     def get(self, request, *args, **kwargs):
         type_ = request.GET.get('type')
         if type_ == 'image':
-            a = CarImage.objects.all().first()
             car_image = CarImage.objects.all().order_by('created')
-            total = car_image.count()
-            print("total:", total)
-            current_pag = 2
-            paginator = Paginator(car_image, 4)
+            page = request.GET.get('page')
+            # 第几页
+            limit = request.GET.get('limit')
+            # 每天多少数据
+            paginator = Paginator(car_image, limit)
             try:
-                posts = paginator.page(int(current_pag))
+                posts = paginator.page(int(page))
             except PageNotAnInteger:
                 posts = paginator.page(1)
             except EmptyPage:
                 posts = paginator.page(paginator.num_pages)
-            print(posts.object_list)
-            data = []
+            context = {"code": 200, "message": "Get image Successfully."}
+            data = {}
+            list_ = []
             for i in posts.object_list:
-                a = {}
-                a['uid'] = i.uid_id
-                a['gid'] = i.gid
-                a['g_sid'] = i.g_sid
-                a['url'] = str(i.url)  # 注意转为字符类型，不然不能序列化
-                a['create'] = str(i.created)  # 注意转为字符类型，不然不能序列化
-                data.append(a)
-            print(data)
-            return HttpResponse(json.dumps(data, indent=4))
+                detail = dict()
+                detail['uid'] = i.uid_id
+                detail['gid'] = i.gid
+                detail['g_sid'] = i.g_sid
+                detail['url'] = str(i.url)
+                # 注意转为字符类型，不然不能序列化
+                detail['create'] = str(i.created)
+                # 注意转为字符类型，不然不能序列化
+                list_.append(detail)
+                data['total'] = paginator.num_pages
+                # 总页数
+                data['page'] = posts.number
+                data['page_size'] = limit
+                data['list'] = list_
+                context['data'] = data
+            print(context)
+            return HttpResponse(json.dumps(context, indent=4))
         elif type_ == 'data':
             pass
         else:
@@ -215,7 +224,5 @@ class ReceiveImages(MyAuthentication):
         uid = request.GET.get('uid')
         gid = request.GET.get('gid')
         g_sid = request.GET.get('g_sid')
-        page = request.GET.get('page')
-        limit = request.GET.get('limit')
         return HttpResponse('ok')
 
