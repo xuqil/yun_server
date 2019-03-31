@@ -172,5 +172,9 @@ class ReceiveImages(MyAuthentication):
                 with transaction.atomic():
                     car_image_instant.url = 'images_upload/' + image_name
                     car_image_instant.save()
-            return HttpResponse('ok')
+            return JsonResponse({
+                "code": 201,
+                "message": "Successfully Saved.",
+                "data": []
+            })
         return HttpResponse('图片为空')
