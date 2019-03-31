@@ -182,7 +182,7 @@ class ReceiveImages(MyAuthentication):
             })
         return HttpResponse('图片为空')
 
-    def query_images(self, carobj, uid, gid, g_sid):
+    def query_car(self, carobj, uid, gid, g_sid):
         """
         用户图片查询
         :param carobj: 对应的class
@@ -234,10 +234,8 @@ class ReceiveImages(MyAuthentication):
         # 第几页
         limit = request.GET.get('limit')
         # 每页多少数据
-        car_image = None
         if type_ == 'image':
-            car_image = self.query_images("CarImage", uid, gid, g_sid)
-
+            car_image = self.query_car("CarImage", uid, gid, g_sid)
             paginator = Paginator(car_image, limit)
             try:
                 posts = paginator.page(int(page))
@@ -269,8 +267,36 @@ class ReceiveImages(MyAuthentication):
                 context['date'] = {"total": 0, "page": 1, "page_size": limit, "list": [{}]}
             return HttpResponse(json.dumps(context, indent=4))
         elif type_ == 'data':
-            pass
+            car_data = self.query_car("CarData", uid, gid, g_sid)
+            paginator = Paginator(car_data, limit)
+            try:
+                posts = paginator.page(int(page))
+            except PageNotAnInteger:
+                posts = paginator.page(1)
+            except EmptyPage:
+                posts = paginator.page(paginator.num_pages)
+            context = {"code": 200, "message": "Get image Successfully."}
+            data = {}
+            list_ = []
+            if paginator.count:
+                for i in posts.object_list:
+                    detail = dict()
+                    detail['uid'] = i.uid_id
+                    detail['gid'] = i.gid
+                    detail['ccd'] = i.ccd
+                    detail['electric'] = i.electric
+                    detail['acceleration'] = i.acceleration
+                    detail['speed'] = i.speed
+                    detail['created'] = str(i.created)
+                    list_.append(detail)
+                    data['total'] = paginator.num_pages
+                    data['page'] = posts.number
+                    data['page_size'] = limit
+                    data['list'] = list_
+                    context['data'] = data
+            else:
+                context['date'] = {"total": 0, "page": 1, "page_size": limit, "list": [{}]}
+            return HttpResponse(json.dumps(context, indent=4))
         else:
             return HttpResponse('error')
-        return HttpResponse('ok')
 
