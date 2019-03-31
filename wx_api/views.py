@@ -4,8 +4,9 @@
 from django.http import HttpResponse, JsonResponse
 import json
 from .untils import Token, md5
-import datetime
+from datetime import datetime
 from django.db import transaction
+from PIL import Image
 
 from .models import AuthCar, AuthToken, CarComputedDate, CarData, CarImage
 from .authentication import MyAuthentication
@@ -43,7 +44,7 @@ def acquire_token(request):
             # 令牌过期
             access_token = Token().generate_token(key=key, timestamp=timestamp)
             expires_time = Token().valid_time(access_token)
-            AuthToken.objects.filter(uid_id=uid).update(key=access_token, update_time=datetime.datetime.now())
+            AuthToken.objects.filter(uid_id=uid).update(key=access_token, update_time=datetime.now())
         sign = md5(app_id)
 
         context = {
@@ -141,9 +142,27 @@ class ReceiveData(MyAuthentication):
 
 class ReceiveImages(MyAuthentication):
     def post(self, request, *args, **kwargs):
-         gid = request.POST.get('gid')
-         print(gid)
-         images = request.FILES.getlist('myfiles')
-         print(images)
-         print(request.FILES.getlist())
-         return HttpResponse('ok')
+        gid = request.POST.get('gid')
+        images = request.FILES
+        for i in range(len(request.FILES)):
+            car_image_instant = CarImage()
+            car_image_instant.udi_id = self.uid
+            car_image_instant.gid = gid
+            car_image_instant.g_sid = i + 1
+            image = images.get(str(i + 1))
+            image_format = str(image).split('.')[-1]
+            # /images_upload/{uid}_{gid}_{g_sid}_{created}
+            image_name = '%s.%s' % (str(self.uid) + "_" + str(gid) + "_" + str(i + 1) + "_" +
+                                    str(datetime.now().strftime('%Y-%m-%d-%H-%M')),
+                                    image_format)
+            try:
+                img = Image.open(image)
+                img.save('media/images_upload/' + image_name)
+            except OSError:
+                return HttpResponse("图片有误")
+            except Exception as e:
+                print(e)
+                return HttpResponse("操作失败")
+            car_image_instant.url = 'images_upload/' + image_name
+            car_image_instant.save()
+        return HttpResponse('ok')
