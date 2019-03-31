@@ -141,28 +141,36 @@ class ReceiveData(MyAuthentication):
 
 
 class ReceiveImages(MyAuthentication):
+    """
+    长传图片
+    """
     def post(self, request, *args, **kwargs):
         gid = request.POST.get('gid')
+        if gid is None:
+            return HttpResponse('gid不能为空')
         images = request.FILES
-        for i in range(len(request.FILES)):
-            car_image_instant = CarImage()
-            car_image_instant.udi_id = self.uid
-            car_image_instant.gid = gid
-            car_image_instant.g_sid = i + 1
-            image = images.get(str(i + 1))
-            image_format = str(image).split('.')[-1]
-            # /images_upload/{uid}_{gid}_{g_sid}_{created}
-            image_name = '%s.%s' % (str(self.uid) + "_" + str(gid) + "_" + str(i + 1) + "_" +
-                                    str(datetime.now().strftime('%Y-%m-%d-%H-%M')),
-                                    image_format)
-            try:
-                img = Image.open(image)
-                img.save('media/images_upload/' + image_name)
-            except OSError:
-                return HttpResponse("图片有误")
-            except Exception as e:
-                print(e)
-                return HttpResponse("操作失败")
-            car_image_instant.url = 'images_upload/' + image_name
-            car_image_instant.save()
-        return HttpResponse('ok')
+        if images:
+            for i in range(len(request.FILES)):
+                car_image_instant = CarImage()
+                car_image_instant.udi_id = self.uid
+                car_image_instant.gid = gid
+                car_image_instant.g_sid = i + 1
+                image = images.get(str(i + 1))
+                image_format = str(image).split('.')[-1]
+                # /images_upload/{uid}_{gid}_{g_sid}_{created}
+                image_name = '%s.%s' % (str(self.uid) + "_" + str(gid) + "_" + str(i + 1) + "_" +
+                                        str(datetime.now().strftime('%Y-%m-%d-%H-%M')),
+                                        image_format)
+                try:
+                    img = Image.open(image)
+                    img.save('media/images_upload/' + image_name)
+                except OSError:
+                    return HttpResponse("图片有误")
+                except Exception as e:
+                    print(e)
+                    return HttpResponse("操作失败")
+                with transaction.atomic():
+                    car_image_instant.url = 'images_upload/' + image_name
+                    car_image_instant.save()
+            return HttpResponse('ok')
+        return HttpResponse('图片为空')
