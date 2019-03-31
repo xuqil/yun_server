@@ -1,18 +1,20 @@
 """"
 备注：代码后面需要重构
 """
-from django.http import HttpResponse, JsonResponse
-import json
-from .untils import Token, md5
-from datetime import datetime
-import time
-from django.db import transaction
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from PIL import Image
 
-from .models import AuthCar, AuthToken, CarComputedDate, CarData, CarImage
-from .authentication import MyAuthentication
+import json
+import time
+from PIL import Image
+from datetime import datetime
+from django.db import transaction
+from django.http import HttpResponse, JsonResponse
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
+
+from .untils import Token, md5
 from .myquery import query_car
+from .authentication import MyAuthentication
+from .models import AuthCar, AuthToken, CarComputedDate, CarData, CarImage
 
 
 def acquire_token(request):
@@ -199,12 +201,16 @@ class GetData(MyAuthentication):
         # 第几页
         limit = request.GET.get('limit')
         # 每页多少数据
+        if page is None:
+            page = 1
+        if limit is None:
+            limit = 10
         if type_ == 'image':
             if uid is None:
                 car_image = query_car("CarImage", self.uid, gid, g_sid)
             else:
                 car_image = query_car("CarImage", uid, gid, g_sid)
-            paginator = Paginator(car_image, limit)
+            paginator = Paginator(car_image, int(limit))
             try:
                 posts = paginator.page(int(page))
             except PageNotAnInteger:
@@ -273,6 +279,70 @@ class GetData(MyAuthentication):
 
 
 class GetList(MyAuthentication):
+    """
+    获取用户列表
+    """
     def get(self, request, *args, **kwargs):
-        pass
-
+        uid = request.GET.get('uid')
+        page = request.GET.get('page')
+        limit = request.GET.get('limit')
+        if page is None:
+            page = 1
+        if limit is None:
+            limit = 10
+        if uid is None:
+            user = AuthCar.objects.all()
+            paginator = Paginator(user, limit)
+            try:
+                posts = paginator.page(int(page))
+            except PageNotAnInteger:
+                posts = paginator.page(1)
+            except EmptyPage:
+                posts = paginator.page(paginator.num_pages)
+            context = {"code": 200, "message": "Get image Successfully."}
+            data = {}
+            list_ = []
+            if paginator.count:
+                for i in posts.object_list:
+                    detail = dict()
+                    detail['uid'] = i.uid
+                    detail['carid'] = i.car_id
+                    detail['appid'] = i.app_id
+                    list_.append(detail)
+                    data['total'] = paginator.num_pages
+                    data['page'] = posts.number
+                    data['page_size'] = limit
+                    data['list'] = list_
+                    context['data'] = data
+            else:
+                context['date'] = {"total": 0, "page": 1, "page_size": limit, "list": [{}]}
+            return HttpResponse(json.dumps(context, indent=4))
+        else:
+            user_detail = CarComputedDate.objects.filter(uid_id=uid).order_by('created')
+            paginator = Paginator(user_detail, limit)
+            try:
+                posts = paginator.page(int(page))
+            except PageNotAnInteger:
+                posts = paginator.page(1)
+            except EmptyPage:
+                posts = paginator.page(paginator.num_pages)
+            context = {"code": 200, "message": "Get ismage Successfully."}
+            data = {}
+            list_ = []
+            if paginator.count:
+                for i in posts.object_list:
+                    detail = dict()
+                    detail['uid'] = i.uid_id
+                    detail['gid'] = i.gid
+                    detail['data_record'] = i.data_record
+                    detail['data_computed'] = str(i.data_computed)
+                    detail['created'] = str(i.created)
+                    list_.append(detail)
+                    data['total'] = paginator.num_pages
+                    data['page'] = posts.number
+                    data['page_size'] = limit
+                    data['list'] = list_
+                    context['data'] = data
+            else:
+                context['date'] = {"total": 0, "page": 1, "page_size": limit, "list": [{}]}
+            return HttpResponse(json.dumps(context, indent=4))
