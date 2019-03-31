@@ -10,6 +10,7 @@ from django.db import transaction
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from PIL import Image
 
+from wx_api import models
 from .models import AuthCar, AuthToken, CarComputedDate, CarData, CarImage
 from .authentication import MyAuthentication
 
@@ -144,7 +145,7 @@ class ReceiveData(MyAuthentication):
 
 class ReceiveImages(MyAuthentication):
     """
-    长传图片
+    上传图片
     """
     def post(self, request, *args, **kwargs):
         gid = request.POST.get('gid')
@@ -181,26 +182,32 @@ class ReceiveImages(MyAuthentication):
             })
         return HttpResponse('图片为空')
 
-    def query_images(self, uid, gid, g_sid):
+    def query_images(self, carobj, uid, gid, g_sid):
         """
         用户图片查询
+        :param carobj: 对应的class
         :param uid: uid
         :param gid: gid
         :param g_sid: g_sid
         :return: 查询结果
         """
+        # 使用反射
+        if hasattr(models, carobj):
+            CarObj = getattr(models, carobj)
+        else:
+            return None
         car_image = None
         if uid is None:
             # 默认查询登录用户的数据
             if (gid is None and g_sid is not None) or (gid is None and g_sid is None):
                 # gid is not None时该查询没有对某组下的索引进行查询，默认不分组查询
-                car_image = CarImage.objects.all().filter(uid_id=self.uid).order_by('created')
+                car_image = CarObj.objects.all().filter(uid_id=self.uid).order_by('created')
             elif gid is not None and g_sid is None:
                 # 只查询组
-                car_image = CarImage.objects.all().filter(uid_id=self.uid).filter(gid=gid).order_by('created')
+                car_image = CarObj.objects.all().filter(uid_id=self.uid).filter(gid=gid).order_by('created')
             elif gid is not None and g_sid is not None:
                 # 具体查询
-                car_image = CarImage.objects.all().filter(uid_id=self.uid).filter(gid=gid). \
+                car_image = CarObj.objects.all().filter(uid_id=self.uid).filter(gid=gid). \
                     filter(g_sid=g_sid).order_by('created')
         else:
             if (gid is None and g_sid is not None) or (gid is None and g_sid is None):
@@ -229,7 +236,7 @@ class ReceiveImages(MyAuthentication):
         # 每页多少数据
         car_image = None
         if type_ == 'image':
-            car_image = self.query_images(uid, gid, g_sid)
+            car_image = self.query_images("CarImage", uid, gid, g_sid)
 
             paginator = Paginator(car_image, limit)
             try:
