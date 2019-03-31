@@ -7,6 +7,7 @@ from .untils import Token, md5
 from datetime import datetime
 import time
 from django.db import transaction
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from PIL import Image
 
 from .models import AuthCar, AuthToken, CarComputedDate, CarData, CarImage
@@ -183,15 +184,30 @@ class ReceiveImages(MyAuthentication):
     def get(self, request, *args, **kwargs):
         type_ = request.GET.get('type')
         if type_ == 'image':
-            car_image = CarImage.objects.all()[:2]
+            a = CarImage.objects.all().first()
+            car_image = CarImage.objects.all().order_by('created')
             total = car_image.count()
             print("total:", total)
-            # print(car_image.first().url)
-
-
-
-
-            pass
+            current_pag = 2
+            paginator = Paginator(car_image, 4)
+            try:
+                posts = paginator.page(int(current_pag))
+            except PageNotAnInteger:
+                posts = paginator.page(1)
+            except EmptyPage:
+                posts = paginator.page(paginator.num_pages)
+            print(posts.object_list)
+            data = []
+            for i in posts.object_list:
+                a = {}
+                a['uid'] = i.uid_id
+                a['gid'] = i.gid
+                a['g_sid'] = i.g_sid
+                a['url'] = str(i.url)  # 注意转为字符类型，不然不能序列化
+                a['create'] = str(i.created)  # 注意转为字符类型，不然不能序列化
+                data.append(a)
+            print(data)
+            return HttpResponse(json.dumps(data, indent=4))
         elif type_ == 'data':
             pass
         else:
