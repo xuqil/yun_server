@@ -182,6 +182,8 @@ class ReceiveImages(MyAuthentication):
             })
         return HttpResponse('图片为空')
 
+
+class GetData(MyAuthentication):
     def query_car(self, carobj, uid, gid, g_sid):
         """
         用户图片查询
