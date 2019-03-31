@@ -182,13 +182,20 @@ class ReceiveImages(MyAuthentication):
         return HttpResponse('图片为空')
 
     def get(self, request, *args, **kwargs):
+        """
+        默认分页
+        """
         type_ = request.GET.get('type')
+        uid = request.GET.get('uid')
+        gid = request.GET.get('gid')
+        g_sid = request.GET.get('g_sid')
+        page = request.GET.get('page')
+        # 第几页
+        limit = request.GET.get('limit')
+        # 每页多少数据
         if type_ == 'image':
-            car_image = CarImage.objects.all().order_by('created')
-            page = request.GET.get('page')
-            # 第几页
-            limit = request.GET.get('limit')
-            # 每天多少数据
+
+            car_image = CarImage.objects.all().filter(uid_id=uid).order_by('created')
             paginator = Paginator(car_image, limit)
             try:
                 posts = paginator.page(int(page))
@@ -199,30 +206,29 @@ class ReceiveImages(MyAuthentication):
             context = {"code": 200, "message": "Get image Successfully."}
             data = {}
             list_ = []
-            for i in posts.object_list:
-                detail = dict()
-                detail['uid'] = i.uid_id
-                detail['gid'] = i.gid
-                detail['g_sid'] = i.g_sid
-                detail['url'] = str(i.url)
-                # 注意转为字符类型，不然不能序列化
-                detail['create'] = str(i.created)
-                # 注意转为字符类型，不然不能序列化
-                list_.append(detail)
-                data['total'] = paginator.num_pages
-                # 总页数
-                data['page'] = posts.number
-                data['page_size'] = limit
-                data['list'] = list_
-                context['data'] = data
-            print(context)
+            if paginator.count:
+                for i in posts.object_list:
+                    detail = dict()
+                    detail['uid'] = i.uid_id
+                    detail['gid'] = i.gid
+                    detail['g_sid'] = i.g_sid
+                    detail['url'] = str(i.url)
+                    # 注意转为字符类型，不然不能序列化
+                    detail['create'] = str(i.created)
+                    # 注意转为字符类型，不然不能序列化
+                    list_.append(detail)
+                    data['total'] = paginator.num_pages
+                    # 总页数
+                    data['page'] = posts.number
+                    data['page_size'] = limit
+                    data['list'] = list_
+                    context['data'] = data
+            else:
+                context['date'] = {"total": 0, "page": 1, "page_size": limit, "list": [{}]}
             return HttpResponse(json.dumps(context, indent=4))
         elif type_ == 'data':
             pass
         else:
             return HttpResponse('error')
-        uid = request.GET.get('uid')
-        gid = request.GET.get('gid')
-        g_sid = request.GET.get('g_sid')
         return HttpResponse('ok')
 
