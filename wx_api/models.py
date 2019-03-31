@@ -8,6 +8,7 @@ class AuthCar(models.Model):
     # 索引，车牌号
     app_id = models.CharField(max_length=20)
     # 外键连接auth_token,应用id
+    created = models.DateTimeField(auto_now=True, null=True)
 
     class Meta:
         db_table = 'auth_car'
