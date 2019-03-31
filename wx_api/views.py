@@ -165,7 +165,7 @@ class ReceiveImages(MyAuthentication):
                                         image_format)
                 try:
                     img = Image.open(image)
-                    img.save('media/images_upload/' + image_name)
+                    img.save('images_upload/' + image_name)
                 except OSError:
                     return HttpResponse("图片有误")
                 except Exception as e:

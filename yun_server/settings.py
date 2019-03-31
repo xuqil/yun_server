@@ -132,5 +132,5 @@ APPEND_SLASH = False
 STATIC_URL = '/static/'
 
 # 媒体文件存储地址
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media').replace('\\', '/')
+MEDIA_URL = '/images_upload/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'images_upload').replace('\\', '/')
