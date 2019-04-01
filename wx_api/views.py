@@ -11,7 +11,7 @@ from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
-from .untils import Token, md5
+from .utils import Token, md5
 from .myquery import query_car
 from .authentication import MyAuthentication
 from .models import AuthCar, AuthToken, CarComputedDate, CarData, CarImage

@@ -1,7 +1,7 @@
 from .models import AuthToken
 from django.http import JsonResponse
 from django.views import View
-from .untils import base64_decode
+from .utils import base64_decode
 
 
 class MyAuthentication(View):
