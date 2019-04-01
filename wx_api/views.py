@@ -353,11 +353,11 @@ class DeleteCar(MyAuthentication):
     删除数据
     """
     def delete(self, request, type_, uid):
+        try:
+            uid = int(uid)
+        except ValueError:
+            uid = uid
         if type_ == 'image':
-            try:
-                uid = int(uid)
-            except ValueError:
-                uid = uid
             try:
                 if isinstance(int(uid), int):
                     with transaction.atomic():
@@ -367,6 +367,13 @@ class DeleteCar(MyAuthentication):
                     with transaction.atomic():
                         CarImage.objects.all().delete()
             return HttpResponse("204")
-
         elif type_ == 'data':
-            pass
+            try:
+                if isinstance(int(uid), int):
+                    with transaction.atomic():
+                        CarData.objects.filter(uid_id=uid).all().delete()
+            except ValueError:
+                if uid == 'all':
+                    with transaction.atomic():
+                        CarData.objects.all().delete()
+            return HttpResponse("204")
