@@ -346,3 +346,26 @@ class GetList(MyAuthentication):
             else:
                 context['date'] = {"total": 0, "page": 1, "page_size": limit, "list": [{}]}
             return HttpResponse(json.dumps(context, indent=4))
+
+
+class DeleteCar(MyAuthentication):
+    """
+    删除数据
+    """
+    def delete(self, request, type_, uid):
+        if type_ == 'image':
+            print(int(uid))
+            try:
+                uid = int(uid)
+            except ValueError:
+                uid = uid
+            if isinstance(int(uid), int):
+                with transaction.atomic():
+                    CarImage.objects.filter(uid_id=uid).all().delete()
+            elif uid == 'all':
+                with transaction.atomic():
+                    CarImage.objects.all().delete()
+            return HttpResponse("204")
+
+        elif type_ == 'data':
+            pass

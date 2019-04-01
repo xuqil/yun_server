@@ -1,4 +1,8 @@
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch.dispatcher import receiver
+import os
+from yun_server import settings
 
 
 class AuthCar(models.Model):
@@ -76,6 +80,16 @@ class CarImage(models.Model):
 
     class Meta:
         db_table = 'car_image'
+
+
+@receiver(post_delete, sender=CarImage)
+def delete_upload_files(sender, instance, **kwargs):
+    files = getattr(instance, 'url', '')
+    if not files:
+        return
+    fname = os.path.join(settings.BASE_DIR, str(files))
+    if os.path.isfile(fname):
+        os.remove(fname)
 
 
 class AuthToken(models.Model):
