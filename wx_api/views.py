@@ -138,35 +138,6 @@ def acquire_token(request):
         return HttpResponse("error")
 
 
-class CheckToken(MyAuthentication):
-    """
-    使用获取的token进行请求(任意请求都需携带)
-    """
-    def get(self, request, *args, **kwargs):
-        return HttpResponse("address-2")
-
-    def post(self, request, *args, **kwargs):
-        return HttpResponse('address-2')
-
-    def put(self, request, *args, **kwargs):
-        return HttpResponse('address-2')
-
-    def delete(self, request, *args, **kwargs):
-        return HttpResponse('address-2')
-
-    def patch(self, request, *args, **kwargs):
-        return HttpResponse('address-2')
-
-    def head(self, request, *args, **kwargs):
-        return HttpResponse('address-2')
-
-    def options(self, request, *args, **kwargs):
-        return HttpResponse('address-2')
-
-    def trace(self, request, *args, **kwargs):
-        return HttpResponse('address-2')
-
-
 class ReceiveData(MyAuthentication):
     """
     接收传感器数据
