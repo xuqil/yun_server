@@ -6,6 +6,7 @@ from django.conf import settings
 app_name = 'wx_api'
 
 urlpatterns = [
+    path('token2', views.acquire_token_overwrite, name='token_overwrite'),
     path('token', views.acquire_token, name='token'),
     path('address/2', views.CheckToken.as_view(), name='check_token'),
     path('car/data', views.ReceiveData.as_view(), name='receive_data'),

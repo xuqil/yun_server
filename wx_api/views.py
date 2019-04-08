@@ -14,7 +14,68 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .utils import Token, md5
 from .myquery import query_car
 from .authentication import MyAuthentication
-from .models import AuthCar, AuthToken, CarComputedDate, CarData, CarImage
+from .models import AuthCar, AuthToken, CarComputedDate, CarData, CarImage, AuthApp
+
+
+def acquire_token_overwrite(request):
+    """
+    获取认证token，不包含注册功能
+    """
+    if request.method == 'POST':
+        car_id = request.POST.get('carid')
+        app_id = request.POST.get('appid')
+        nonce = request.POST.get('nonce')
+        timestamp = request.POST.get('timestamp')
+        sign = request.POST.get('sign')
+        sdasd = request.POST.get('sdasd')
+        if car_id is None or app_id is None:
+            context = {"error": "1000:Response Invalid"}
+            return HttpResponse(json.dumps(context))
+        if AuthApp.objects.filter(app_id=app_id).first() is None:
+            return HttpResponse("用户不存在！")
+        app_secret = AuthApp.objects.filter(app_id=app_id).first().app_secret
+        server_sign = md5(app_secret + app_id + nonce)
+        if server_sign != sign:
+            return HttpResponse('403')
+        uid = AuthCar.objects.filter(car_id=car_id).first().uid
+        # 用户id
+        access_token = AuthToken.objects.filter(uid_id=uid).first()
+        key = str(app_id) + str(nonce) + str(sign)
+        if access_token is None:
+            # 当令牌不存在时
+            access_token = Token().generate_token(key=key, timestamp=timestamp)
+            AuthToken.objects.create(key=access_token, uid_id=uid)
+        access_token = AuthToken.objects.filter(uid_id=uid).first().key
+        if Token().certify_token(key=key, token=access_token, timestamp=timestamp) is False:
+            # 令牌过期
+            print("token过期")
+            access_token = Token().generate_token(key=key, timestamp=timestamp)
+            AuthToken.objects.filter(uid_id=uid).update(key=access_token, update_time=datetime.now())
+        expires_time = Token().valid_time(access_token)
+        # 令牌失效时间
+        context = {
+                "code": 200,
+                "message": "success",
+                "data": {
+                    "access_token": access_token,
+                    "expires_time": expires_time,
+                    "refresh_token": "fmUh89LrwylMd2678ePEciDtYo5Cs7V9",
+                    "refresh_expires_time": 1537248112,
+                    "client": {
+                        "uid": uid,
+                        "carid": car_id,
+                        "appid": app_id,
+                        "nonce": nonce,
+                        "timestamp": timestamp,
+                        "sign": sign,
+                        "sdasd": sdasd,
+                        "version": "v1"
+                    }
+                }
+            }
+        return HttpResponse(json.dumps(context, indent=4))
+    else:
+        return HttpResponse("error")
 
 
 def acquire_token(request):
@@ -34,16 +95,16 @@ def acquire_token(request):
         car_id_result = AuthCar.objects.filter(car_id=car_id).first()
         if car_id_result is None:
             AuthCar.objects.create(car_id=car_id, app_id=app_id)
-        car_id = AuthCar.objects.filter(car_id=car_id).values('car_id').first()['car_id']
+        car_id = AuthCar.objects.filter(car_id=car_id).first().car_id
         print('car_id', car_id)
-        uid = AuthCar.objects.filter(car_id=car_id).values('uid').first()['uid']
+        uid = AuthCar.objects.filter(car_id=car_id).first().uid
         access_token = AuthToken.objects.filter(uid_id=uid).first()
         key = str(car_id) + str(app_id)
         if access_token is None:
             # 当令牌不存在时
             access_token = Token().generate_token(key=key, timestamp=timestamp)
             AuthToken.objects.create(key=access_token, uid_id=uid)
-        access_token = AuthToken.objects.filter(uid_id=uid).values('key').first()['key']
+        access_token = AuthToken.objects.filter(uid_id=uid).first().key
         expires_time = Token().valid_time(access_token)
         if Token().certify_token(key=key, token=access_token, timestamp=timestamp) is False:
             # 令牌过期
