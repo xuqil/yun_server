@@ -11,7 +11,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 from .myquery import query_car
-from .models import AuthCar, CarComputedDate, CarData, CarImage
+from .models import AuthCar, CarComputedDate, CarData, CarImage, CarFile
 
 
 class ReceiveData(View):
@@ -117,7 +117,7 @@ class GetData(View):
             page = 1
         if limit is None:
             limit = 10
-        if type_ == 'image':
+        if type_ == 'media':
             if uid is None:
                 car_image = query_car("CarImage", uid, gid, g_sid)
             else:
@@ -129,7 +129,7 @@ class GetData(View):
                 posts = paginator.page(1)
             except EmptyPage:
                 posts = paginator.page(paginator.num_pages)
-            context = {"code": 200, "message": "Get image Successfully."}
+            context = {"code": 200, "message": "Get media Successfully."}
             data = {}
             list_ = []
             if paginator.count:
@@ -164,7 +164,7 @@ class GetData(View):
                 posts = paginator.page(1)
             except EmptyPage:
                 posts = paginator.page(paginator.num_pages)
-            context = {"code": 200, "message": "Get image Successfully."}
+            context = {"code": 200, "message": "Get media Successfully."}
             data = {}
             list_ = []
             if paginator.count:
@@ -211,7 +211,7 @@ class GetList(View):
                 posts = paginator.page(1)
             except EmptyPage:
                 posts = paginator.page(paginator.num_pages)
-            context = {"code": 200, "message": "Get image Successfully."}
+            context = {"code": 200, "message": "Get media Successfully."}
             data = {}
             list_ = []
             if paginator.count:
@@ -269,7 +269,7 @@ class DeleteCar(View):
             uid = int(uid)
         except ValueError:
             uid = uid
-        if type_ == 'image':
+        if type_ == 'media':
             try:
                 if isinstance(int(uid), int):
                     with transaction.atomic():
@@ -291,3 +291,21 @@ class DeleteCar(View):
                         CarData.objects.all().delete()
                         CarComputedDate.objects.all().delete()
             return HttpResponse("204")
+
+
+class UploadFiles(View):
+    """
+    文件上传
+    """
+    def post(self, request):
+        gid = request.POST.get('gid')
+        uid = request.POST.get('uid')
+        files = request.FILES
+        for i in range(len(files)):
+            empty = CarFile()
+            empty.url = files.get(str(i + 1))
+            empty.gid = gid
+            empty.uid = uid
+            empty.save()
+        return HttpResponse('上传成功')
+

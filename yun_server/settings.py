@@ -85,7 +85,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'yun_server',
         'USER': 'root',
-        'PASSWORD': '19218',
+        'PASSWORD': '192188',
         'PORT': '3306',
         'HOST': '127.0.0.1'
     }
@@ -132,5 +132,5 @@ APPEND_SLASH = False
 STATIC_URL = '/static/'
 
 # 媒体文件存储地址
-MEDIA_URL = '/images_upload/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'images_upload').replace('\\', '/')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media').replace('\\', '/')

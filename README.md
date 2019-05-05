@@ -335,7 +335,7 @@
   ```json
   {
       "code": 200,
-      "message": "Get image Successfully.",
+      "message": media,
       "data": {
           "total": 26,
           "page": "9",

@@ -3,6 +3,7 @@ from django.db.models.signals import post_delete
 from django.dispatch.dispatcher import receiver
 import os
 from yun_server import settings
+from .storage import FileStorage
 
 
 class AuthCar(models.Model):
@@ -73,7 +74,7 @@ class CarImage(models.Model):
     # 索引，上传的分组
     g_sid = models.IntegerField(db_index=True)
     # 索引，在某分组下的具体序号
-    url = models.ImageField(max_length=50, upload_to="images_upload/")
+    url = models.ImageField(max_length=50, upload_to="./images_upload/")
     # 图片的url路径，命名方式为/images_upload/{uid}_{gid}_{g_sid}_{created}
     created = models.DateTimeField(auto_now=True)
     # 图片上传保存时间
@@ -103,3 +104,19 @@ class AuthToken(models.Model):
 
     def __str__(self):
         return self.key
+
+
+class CarFile(models.Model):
+    uid = models.ForeignKey(AuthCar, on_delete=models.CASCADE)
+    # 外键连接auth_car，上传用户uid
+    gid = models.IntegerField(db_index=True)
+    # 索引，上传的分组
+    g_sid = models.IntegerField(db_index=True)
+    # 索引，在某分组下的具体序号
+    url = models.FileField(upload_to="./files_upload/", storage=FileStorage())
+    # 文件的url路径，命名方式为/files{uid}_{gid}_{g_sid}_{created}
+    created = models.DateTimeField(auto_now=True)
+    # 文件上传保存时间
+
+    class Meta:
+        db_table = 'car_file'

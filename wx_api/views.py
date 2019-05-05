@@ -237,7 +237,7 @@ class GetData(MyAuthentication):
             page = 1
         if limit is None:
             limit = 10
-        if type_ == 'image':
+        if type_ == 'media':
             if uid is None:
                 car_image = query_car("CarImage", self.uid, gid, g_sid)
             else:
@@ -249,7 +249,7 @@ class GetData(MyAuthentication):
                 posts = paginator.page(1)
             except EmptyPage:
                 posts = paginator.page(paginator.num_pages)
-            context = {"code": 200, "message": "Get image Successfully."}
+            context = {"code": 200, "message": "Get media Successfully."}
             data = {}
             list_ = []
             if paginator.count:
@@ -284,7 +284,7 @@ class GetData(MyAuthentication):
                 posts = paginator.page(1)
             except EmptyPage:
                 posts = paginator.page(paginator.num_pages)
-            context = {"code": 200, "message": "Get image Successfully."}
+            context = {"code": 200, "message": "Get media Successfully."}
             data = {}
             list_ = []
             if paginator.count:
@@ -331,7 +331,7 @@ class GetList(MyAuthentication):
                 posts = paginator.page(1)
             except EmptyPage:
                 posts = paginator.page(paginator.num_pages)
-            context = {"code": 200, "message": "Get image Successfully."}
+            context = {"code": 200, "message": "Get media Successfully."}
             data = {}
             list_ = []
             if paginator.count:
@@ -389,7 +389,7 @@ class DeleteCar(MyAuthentication):
             uid = int(uid)
         except ValueError:
             uid = uid
-        if type_ == 'image':
+        if type_ == 'media':
             try:
                 if isinstance(int(uid), int):
                     with transaction.atomic():
